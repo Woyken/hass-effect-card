@@ -7,10 +7,46 @@ import { useCardConfig } from "../rootCardRenderer/useCardConfigContext";
 // import { useCardConfigPublisher } from "../rootCardRenderer/useCardConfigPublisherContext";
 import { HaSelector } from "../haCards/haSelector";
 // import { safeParse } from "valibot";
-import { createForm } from "@tanstack/solid-form";
-import { createEffect } from "solid-js";
+import {
+  type FieldApi,
+  createForm,
+  type DeepKeys,
+  type DeepValue,
+} from "@tanstack/solid-form";
+import { type Accessor, createMemo } from "solid-js";
 import { effectCardConfigSchema } from "../cardConfigSchema/cardConfigSchema";
-import { valibotValidator } from "./validator";
+import { type ValidationResultSerialized, valibotValidator } from "./validator";
+import { type Validator } from "@tanstack/form-core";
+
+function useFieldError<
+  TParentData,
+  TName extends DeepKeys<TParentData>,
+  TFieldValidator extends
+    | Validator<DeepValue<TParentData, TName>, unknown>
+    | undefined = undefined,
+  TFormValidator extends
+    | Validator<TParentData, unknown>
+    | undefined = undefined,
+  TData extends DeepValue<TParentData, TName> = DeepValue<TParentData, TName>,
+>(
+  field: Accessor<
+    FieldApi<TParentData, TName, TFieldValidator, TFormValidator, TData>
+  >
+) {
+  const errors = field().form.useStore((s) => s.errors);
+  const error = createMemo(() =>
+    errors()
+      .flatMap((x) =>
+        typeof x === "string"
+          ? (JSON.parse(x) as ValidationResultSerialized[])
+          : undefined
+      )
+      .filter((x) => x?.path === field().name)
+      .map((x) => x?.message)
+      .join(", ")
+  );
+  return error;
+}
 
 export function EditorCard() {
   const cfg = useCardConfig();
@@ -29,95 +65,52 @@ export function EditorCard() {
     },
   }));
 
-  const errors = form.useStore((s) => s.errors);
-  // const colorErrors = form.useStore((s) => s.fieldMeta.color?.errors);
-  const store = form.useStore((s) => s);
-  createEffect(() => {
-    console.log("errors", errors().join(","));
-  });
-  createEffect(() => {
-    console.log("store", store());
-  });
-
-  createEffect(() => {
-    console.log("form.state.errors", form.state.errors);
-  });
-  createEffect(() => {
-    console.log("form.state.isFormValid", form.state.isFormValid);
-  });
-  createEffect(() => {
-    console.log("form.state.values", form.state.values);
-  });
-
-  // const localCardConfig = createMemo(() => {
-  //   const currentConfig = cfg();
-  //   const selectedEffect = selectedEffectType();
-  //   if (!currentConfig) return;
-  //   const newResult = { ...currentConfig, effectType: selectedEffect };
-  //   const parsedLocalConfig = safeParse(userConfigSchema, newResult);
-  //   return parsedLocalConfig;
-  // });
-
-  // createEffect(() => {
-  //   const localConfig = localCardConfig();
-  //   const currentConfig = cfg();
-  //   if (
-  //     currentConfig &&
-  //     localConfig &&
-  //     JSON.stringify(currentConfig) !== JSON.stringify(localConfig.output)
-  //   ) {
-  //     if (localConfig.success) publishConfig(localConfig.output);
-  //   }
-  // });
-
   // todo other configs, like color, probably text input is fine for it
 
   return (
     <>
       <form.Field name="effectType">
-        {(field) => (
-          <HaSelector
-            selector={{
-              select: {
-                options: [
-                  { label: "Magic Snowflakes", value: "magic-snowflakes" },
-                ],
-                mode: "dropdown",
-                multiple: false,
-                custom_value: false,
-              },
-            }}
-            value={field().state.value}
-            label="Effect type"
-            // helper={field().state.meta.isPristine}
-            onValueChanged={(e) => {
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- validate the input
-              field().handleChange(e.detail.value as any);
-              // field().form.setFieldValue("color", e.detail.value as any, {touch: true})
-            }}
-          />
-        )}
+        {(field) => {
+          const error = useFieldError(field);
+          return (
+            <HaSelector
+              selector={{
+                select: {
+                  options: [
+                    { label: "Magic Snowflakes", value: "magic-snowflakes" },
+                  ],
+                  mode: "dropdown",
+                  multiple: false,
+                  custom_value: false,
+                },
+              }}
+              helper={error()}
+              value={field().state.value}
+              label="Effect type"
+              // helper={field().state.meta.isPristine}
+              onValueChanged={(e) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- validate the input
+                field().handleChange(e.detail.value as any);
+                // field().form.setFieldValue("color", e.detail.value as any, {touch: true})
+              }}
+            />
+          );
+        }}
       </form.Field>
       {/* <HaSwitch onChecked={console.warn} /> */}
       <form.Field name="color" defaultMeta={{ isTouched: true }}>
         {(field) => {
+          const error = useFieldError(field);
           return (
-            <>
-              <button
-                onClick={() => {
-                  void field().form.validate("change");
-                }}
-              />
-              <HaTextfield
-                invalid={field().getMeta().errors.length > 0}
-                errorMessage={field().state.meta.errors.join(", ")}
-                onInput={(e) => {
-                  field().handleChange((e.target as any)?.value);
-                }}
-                icon
-                inputSpellcheck="what?"
-              />
-            </>
+            <HaTextfield
+              invalid={!!error()}
+              errorMessage={error()}
+              onInput={(e) => {
+                field().handleChange((e.target as any)?.value);
+              }}
+              icon
+              inputSpellcheck="what?"
+            />
           );
         }}
       </form.Field>
