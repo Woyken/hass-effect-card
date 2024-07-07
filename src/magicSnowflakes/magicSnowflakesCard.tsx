@@ -2,8 +2,9 @@ import { useCardConfig } from "../rootCardRenderer/useCardConfigContext";
 import { Show, createMemo } from "solid-js";
 import MagicSnowflakes from "./magicSnowflakes";
 import { useEditMode } from "../rootCardRenderer/useEditModeContext";
+import { createComponent2, createSignal2 } from "../signal2";
 
-export default function MagicSnowflakesCard() {
+const MagicSnowflakesCard = createComponent2(() => {
   const config = useCardConfig();
   const editMode = useEditMode();
   const snowflakeConfig = createMemo(() => {
@@ -11,11 +12,25 @@ export default function MagicSnowflakesCard() {
     if (cfg?.effectType === "magic-snowflakes") return cfg;
   });
 
+  const formattedColor = createMemo(() => {
+    const cfg = snowflakeConfig();
+    if (!cfg) return undefined;
+    const red = cfg.colorRed;
+    const green = cfg.colorGreen;
+    const blue = cfg.colorBlue;
+    return red !== undefined || green !== undefined || blue !== undefined
+      ? `#${(red ?? 0).toString(16).padStart(2, "0")}${(green ?? 0).toString(16).padStart(2, "0")}${(blue ?? 0).toString(16).padStart(2, "0")}`
+      : undefined;
+  });
+
+  const container = createSignal2<HTMLElement>();
+
   return (
     <>
+      <div style={{ height: "300px", width: "300px",position: 'absolute', overflow: 'hidden' }} ref={container.set} />
       <MagicSnowflakes
         count={snowflakeConfig()?.count}
-        color={snowflakeConfig()?.color}
+        color={formattedColor()}
         minOpacity={snowflakeConfig()?.minOpacity}
         maxOpacity={snowflakeConfig()?.maxOpacity}
         minSize={snowflakeConfig()?.minSize}
@@ -24,6 +39,7 @@ export default function MagicSnowflakesCard() {
         speed={snowflakeConfig()?.speed}
         wind={snowflakeConfig()?.wind}
         zIndex={snowflakeConfig()?.zIndex}
+        container={container.get()}
       >
         {(instance) => (
           <Show when={editMode()}>
@@ -35,9 +51,7 @@ export default function MagicSnowflakesCard() {
             )}
             <br />
             color=
-            {String(
-              snowflakeConfig()?.color ?? (instance as any).params?.color
-            )}
+            {String(formattedColor() ?? (instance as any).params?.color)}
             <br />
             minOpacity=
             {String(
@@ -83,4 +97,6 @@ export default function MagicSnowflakesCard() {
       </MagicSnowflakes>
     </>
   );
-}
+});
+
+export default MagicSnowflakesCard;

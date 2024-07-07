@@ -4,27 +4,31 @@ import {
   type ParentProps,
   type Setter,
 } from "solid-js";
-import { type UserConfigSchema } from "../cardConfigSchema/cardConfigSchema";
+import { createComponent2 } from "../signal2";
+import { type EditorConfigSchema } from "../cardConfigSchema/editorConfigSchema";
 
-const CardConfigPublisherContext =
-  createContext<Setter<UserConfigSchema | undefined>>();
+const EditorConfigPublisherContext =
+  createContext<Setter<EditorConfigSchema | undefined>>();
 
-export function CardConfigPublisherProvider(
-  props: ParentProps<{
-    cardConfigPublisher: Setter<UserConfigSchema | undefined>;
+export const EditorConfigPublisherProvider = createComponent2<
+  ParentProps<{
+    editorConfigPublisher: Setter<EditorConfigSchema | undefined>;
   }>
-) {
+>((props) => {
   return (
-    // eslint-disable-next-line solid/reactivity -- Accessing reactive props
-    <CardConfigPublisherContext.Provider value={props.cardConfigPublisher}>
-      {props.children}
-    </CardConfigPublisherContext.Provider>
+    <EditorConfigPublisherContext.Provider
+      // eslint-disable-next-line solid/reactivity -- Accessing reactive props
+      value={props.editorConfigPublisher()}
+    >
+      {props.children()}
+    </EditorConfigPublisherContext.Provider>
   );
-}
+});
 
-export function useCardConfigPublisher() {
-  const cardConfig = useContext(CardConfigPublisherContext);
-  if (!cardConfig) throw new Error("Forgot to add CardConfigPublisherProvider");
+export function useEditorConfigPublisher() {
+  const editorConfig = useContext(EditorConfigPublisherContext);
+  if (!editorConfig)
+    throw new Error("Forgot to add EditorConfigPublisherProvider");
 
-  return cardConfig;
+  return editorConfig;
 }

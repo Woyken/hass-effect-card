@@ -3,14 +3,14 @@ import {
   type Output,
   variant,
   literal,
-  string,
   optional,
   number,
   boolean,
   intersect,
   type Input,
-  length,
-  transform,
+  unknown,
+  minValue,
+  maxValue,
 } from "valibot";
 
 export const effectCardConfigSchema = intersect([
@@ -20,10 +20,9 @@ export const effectCardConfigSchema = intersect([
     [
       object({
         effectType: literal("magic-snowflakes"),
-        color: transform(optional(string([length(2, "aaaaaaaaaaa")])), (i) => {
-          console.log("transform color", i);
-          return i;
-        }),
+        colorRed: optional(number([minValue(0), maxValue(255)])),
+        colorGreen: optional(number([minValue(0), maxValue(255)])),
+        colorBlue: optional(number([minValue(0), maxValue(255)])),
         count: optional(number()),
         speed: optional(number()),
         minSize: optional(number()),
@@ -41,6 +40,7 @@ export const effectCardConfigSchema = intersect([
     ],
     "effectType must be set (allowed values: 'magic-snowflakes')"
   ),
+  unknown(),
 ]);
 export type UserConfigSchemaIn = Input<typeof effectCardConfigSchema>;
 export type UserConfigSchema = Output<typeof effectCardConfigSchema>;

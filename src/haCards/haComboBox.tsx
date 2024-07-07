@@ -1,5 +1,6 @@
-import { createEffect, createSignal } from "solid-js";
+import { createEffect } from "solid-js";
 import { type HaComboBoxLitElement } from "../homeassistant-web-components/haComboBox";
+import { createSignal2 } from "../signal2";
 
 export function HaComboBox<
   ItemType = {
@@ -26,10 +27,10 @@ export function HaComboBox<
   onOpenedChanged?: HaComboBoxLitElement["onOpened-changed"];
   items?: ItemType[];
 }) {
-  const [ref, setRef] = createSignal<HaComboBoxLitElement>();
+  const ref = createSignal2<HaComboBoxLitElement>();
 
   createEffect(() => {
-    if (props.opened) void ref()?.open();
+    if (props.opened) void ref.get()?.open();
   });
 
   createEffect(() => {
@@ -40,12 +41,12 @@ export function HaComboBox<
   });
 
   createEffect(() => {
-    if (props.focus) void ref()?.focus();
+    if (props.focus) void ref.get()?.focus();
   });
 
   return (
     <ha-combo-box
-      ref={setRef}
+      ref={ref.set}
 
       prop:label={props.label}
       prop:value={props.value}

@@ -1,4 +1,8 @@
-export function HaSwitch(props: { onChecked: (checked: boolean) => void }) {
+import { createComponent2 } from "../signal2";
+
+export const HaSwitch = createComponent2<{
+  onChecked: (checked: boolean) => void;
+}>((props) => {
   return (
     <ha-switch
       //   ref={(x) => {
@@ -7,7 +11,7 @@ export function HaSwitch(props: { onChecked: (checked: boolean) => void }) {
       //     (x as any).icons = true;
       //   }}
       onChange={(e) => {
-        props.onChecked(e.currentTarget.checked ?? false);
+        props.onChecked()(e.currentTarget.checked ?? false);
       }}
       checked={true}
       disabled={true}
@@ -16,4 +20,4 @@ export function HaSwitch(props: { onChecked: (checked: boolean) => void }) {
       // icons={true}
     />
   );
-}
+});

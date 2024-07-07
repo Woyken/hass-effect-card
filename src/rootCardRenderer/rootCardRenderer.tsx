@@ -6,7 +6,7 @@ import { HassProvider } from "./useHassContext";
 import { EditModeProvider } from "./useEditModeContext";
 import { CardConfigProvider } from "./useCardConfigContext";
 import { SetCardSizeProvider } from "./useSetCardSizeContext";
-import { createSignal } from "solid-js";
+import { createSignal2 } from "../signal2";
 
 export type RenderRootCardResult = ReturnType<typeof renderRootCard>;
 
@@ -17,18 +17,18 @@ export function renderRootCard(
   initialCardConfig?: UserConfigSchema,
   initialEditMode: boolean = false
 ) {
-  const [hass, setHass] = createSignal<HomeAssistant | undefined>(initialHass);
-  const [cardConfig, setCardConfig] = createSignal<
-    UserConfigSchema | undefined
-  >(initialCardConfig);
-  const [editMode, setEditMode] = createSignal<boolean>(initialEditMode);
+  const hass = createSignal2<HomeAssistant | undefined>(initialHass);
+  const cardConfig = createSignal2<UserConfigSchema | undefined>(
+    initialCardConfig
+  );
+  const editMode = createSignal2<boolean>(initialEditMode);
 
   const disposeRender = render(() => {
     return (
       <SetCardSizeProvider setCardSize={setCardSize}>
-        <HassProvider hass={hass()}>
-          <CardConfigProvider cardConfig={cardConfig()}>
-            <EditModeProvider editMode={editMode()}>
+        <HassProvider hass={hass.get()}>
+          <CardConfigProvider cardConfig={cardConfig.get()}>
+            <EditModeProvider editMode={editMode.get()}>
               <RootCard />
             </EditModeProvider>
           </CardConfigProvider>
@@ -36,6 +36,10 @@ export function renderRootCard(
       </SetCardSizeProvider>
     );
   }, rootElement);
-  return { disposeRender, setHass, setCardConfig, setEditMode };
+  return {
+    disposeRender,
+    setHass: hass.set,
+    setCardConfig: cardConfig.set,
+    setEditMode: editMode.set,
+  };
 }
-

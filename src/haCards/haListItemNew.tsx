@@ -1,6 +1,8 @@
 // https://github.com/home-assistant/frontend/blob/dev/src/components/ha-list-item-new.ts
 // import { MdListItem } from "@material/web/list/list-item";
 
+import { createComponent2 } from "../signal2";
+
 type Props = {
     icon: boolean;
     clearable: boolean;
@@ -20,30 +22,30 @@ type Props = {
     onSelected: (item: string) => void;
 }
 
-export function HaSelect(props: Props) {
+export const HaSelect = createComponent2<Props>((props) => {
   return (
     <ha-list-item-new
-      prop:icon={props.icon}
-      prop:clearable={props.clearable}
+      prop:icon={props.icon()}
+      prop:clearable={props.clearable()}
 
-      prop:disabled={props.disabled}
-      prop:outlined={props.outlined}
-      prop:label={props.label}
-      prop:value={props.value}
-      prop:name={props.name}
-      prop:helper={props.helper}
-      prop:validateOnInitialRender={props.validateOnInitialRender}
-      prop:validationMessage={props.validationMessage}
-      prop:required={props.required}
-      prop:naturalMenuWidth={props.naturalMenuWidth}
-      prop:fixedMenuPosition={props.fixedMenuPosition}
+      prop:disabled={props.disabled()}
+      prop:outlined={props.outlined()}
+      prop:label={props.label()}
+      prop:value={props.value()}
+      prop:name={props.name()}
+      prop:helper={props.helper()}
+      prop:validateOnInitialRender={props.validateOnInitialRender()}
+      prop:validationMessage={props.validationMessage()}
+      prop:required={props.required()}
+      prop:naturalMenuWidth={props.naturalMenuWidth()}
+      prop:fixedMenuPosition={props.fixedMenuPosition()}
       onSelected={(e: any) => {
         const selectedItem: string = e.target.value;
-        props.onSelected(selectedItem);
+        props.onSelected()(selectedItem);
       }}
     />
   );
-}
+})
 
 declare module "solid-js" {
   // eslint-disable-next-line @typescript-eslint/no-namespace -- overwriting existing declarations

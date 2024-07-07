@@ -1,4 +1,5 @@
 import { type Selector } from "../haTypes/selector";
+import { createComponent2 } from "../signal2";
 
 type Props = {
   name?: string;
@@ -14,24 +15,24 @@ type Props = {
   onValueChanged?: (e: CustomEvent<{ value: string }>) => void;
 };
 
-export function HaSelector(props: Props) {
+export const HaSelector = createComponent2<Props>((props) => {
   return (
     <ha-selector
-      prop:name={props.name}
-      prop:selector={props.selector}
-      prop:value={props.value}
-      prop:label={props.label}
-      prop:helper={props.helper}
-      prop:localizeValue={props.localizeValue}
-      prop:placeholder={props.placeholder}
-      prop:disabled={props.disabled}
-      prop:required={props.required}
-      prop:context={props.context}
+      prop:name={props.name()}
+      prop:selector={props.selector()}
+      prop:value={props.value()}
+      prop:label={props.label()}
+      prop:helper={props.helper()}
+      prop:localizeValue={props.localizeValue()}
+      prop:placeholder={props.placeholder()}
+      prop:disabled={props.disabled()}
+      prop:required={props.required()}
+      prop:context={props.context()}
       // eslint-disable-next-line solid/reactivity -- just passing props directly
-      onValue-changed={props.onValueChanged}
+      onValue-changed={props.onValueChanged()}
     />
   );
-}
+});
 
 // https://github.com/home-assistant/frontend/blob/dev/src/components/ha-selector/ha-selector.ts
 // import { SelectBase } from "@material/mwc-select/mwc-select-base";

@@ -1,10 +1,11 @@
 import { type HomeAssistant } from "custom-card-helpers";
-import { parse as vparse } from "valibot";
+import { parse } from "valibot";
 import {
   type UserConfigSchema,
   effectCardConfigSchema,
 } from "./cardConfigSchema/cardConfigSchema";
 import { type RenderEditorResult } from "./editor/renderEditor";
+import { editorConfigSchema } from "./cardConfigSchema/editorConfigSchema";
 
 export class ContentCardEditor extends HTMLElement {
   private _config?: UserConfigSchema;
@@ -59,8 +60,11 @@ export class ContentCardEditor extends HTMLElement {
     // Object { type: "custom:effect-card", effectType: "magic-snowflakes", color: "#5ECDEF" }
     // editor after parse config
     // Object { effectType: "magic-snowflakes", color: "#5ECDEF" }
+    console.log("ha set config,", config);
 
-    const userConfigParseResult = vparse(effectCardConfigSchema, config);
+    // TODO accept {} object here. Editor should support more configurations than the card.
+    // and show errors in it's page, but still submit config to the card
+    const userConfigParseResult = parse(editorConfigSchema, config);
     this._config = userConfigParseResult;
     void this._cardRenderResult?.then((renderer) =>
       renderer.setCardConfig(userConfigParseResult)

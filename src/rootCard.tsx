@@ -1,6 +1,7 @@
 import { lazy } from "solid-js";
 import { useCardConfig } from "./rootCardRenderer/useCardConfigContext";
 import { Dynamic } from "solid-js/web";
+import { createComponent2 } from "./signal2";
 
 const LazySnow = lazy(
   async () => await import("./magicSnowflakes/magicSnowflakesCard")
@@ -11,7 +12,7 @@ const options = {
   todo: LazySnow,
 };
 
-export function RootCard() {
+export const RootCard = createComponent2(() => {
   const config = useCardConfig();
 
   return (
@@ -19,4 +20,4 @@ export function RootCard() {
       <Dynamic component={options[config()?.effectType ?? "todo"]} />
     </>
   );
-}
+});

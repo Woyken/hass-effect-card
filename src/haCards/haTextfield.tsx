@@ -1,4 +1,6 @@
-export function HaTextfield(props: {
+import { createComponent2 } from "../signal2";
+
+export const HaTextfield = createComponent2<{
   invalid?: boolean;
   errorMessage?: string;
   icon?: boolean;
@@ -23,26 +25,25 @@ export function HaTextfield(props: {
   value?: number;
   configValue?: string;
   onInput?: (e: InputEvent) => void;
-}) {
+}>((props) => {
   return (
     <ha-textfield
-      prop:invalid={props.invalid}
-      prop:errorMessage={props.errorMessage}
-      prop:icon={props.icon}
-      prop:iconTrailing={props.iconTrailing}
-      prop:autocomplete={props.autocomplete}
-      prop:autocorrect={props.autocorrect}
-      prop:inputSpellcheck={props.inputSpellcheck}
-
-      prop:label={props.label}
+      prop:invalid={props.invalid()}
+      prop:errorMessage={props.errorMessage()}
+      prop:icon={props.icon()}
+      prop:iconTrailing={props.iconTrailing()}
+      prop:autocomplete={props.autocomplete()}
+      prop:autocorrect={props.autocorrect()}
+      prop:inputSpellcheck={props.inputSpellcheck()}
+      prop:label={props.label()}
       // type={props.type}
       // inputMode={props.inputMode}
-      prop:min={props.min}
-      prop:step={props.step}
+      prop:min={props.min()}
+      prop:step={props.step()}
       // value={props.value}
       // configValue={props.configValue}
 
-      onInput={props.onInput}
+      onInput={props.onInput()}
     />
   );
-}
+});
